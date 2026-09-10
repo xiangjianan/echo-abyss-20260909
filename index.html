@@ -542,11 +542,11 @@ function draw(){
     }
     const py = state === 'menu' ? H * 0.5 + Math.sin(Date.now() * 0.002) * 14 : player.y;
     const g = ctx.createRadialGradient(PX, py, 2, PX, py, 110);
-    g.addColorStop(0, 'rgba(103,232,249,0.55)'); g.addColorStop(0.35, 'rgba(103,232,249,0.18)');
+    g.addColorStop(0, 'rgba(103,232,249,0.42)'); g.addColorStop(0.35, 'rgba(103,232,249,0.18)');
     g.addColorStop(0.7, 'rgba(103,232,249,0.06)'); g.addColorStop(1, 'rgba(103,232,249,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(PX, py, 110, 0, TAU); ctx.fill();
     if (graceT > 0) ctx.globalAlpha = 0.45 + Math.sin(Date.now() * 0.025) * 0.3;   // 无敌闪烁
-    ctx.fillStyle = '#eafcff';
+    ctx.fillStyle = 'rgba(234,252,255,0.72)';                  // 主体白核降亮:不再晃眼,位置依然清晰
     ctx.beginPath(); ctx.arc(PX, py, player.r, 0, TAU); ctx.fill();
     ctx.fillStyle = '#67e8f9';
     ctx.beginPath(); ctx.arc(PX - 3, py - 2, 3.5, 0, TAU); ctx.fill();
