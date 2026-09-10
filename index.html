@@ -37,6 +37,8 @@ function resize(){
   cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
   cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
   offX = (ww - cw) / 2; offY = (wh - ch) / 2;
+  // 居中必须落在元素定位上,而不是画布内部变换(否则横屏窗口里内容会被平移出画布)
+  cv.style.left = offX + 'px'; cv.style.top = offY + 'px';
 }
 window.addEventListener('resize', resize); resize();
 
@@ -123,6 +125,7 @@ let best = loadBest();
 let scrollX, speed, tPlay, player, cave, pearls, jellies, pings;
 let parts, floats, trail, plankton, shake, slow, combo, comboT, comboPop;
 let pearlTimer, jellyTimer, score, pearlGot, lastCaveD, deathAt, muted;
+let tutPings = 0;             // 新手引导:前 3 次声呐内持续显示操作提示
 muted = false;
 try { muted = localStorage.getItem('echoabyss_mute') === '1'; } catch(e){}
 
@@ -132,13 +135,13 @@ for (let i = 0; i < 26; i++)
 
 function resetGame(){
   scrollX = 0; speed = 150; tPlay = 0;
-  player = { y: H * 0.42, vy: 0, r: 12 };
+  player = { y: H * 0.5, vy: 0, r: 12 };
   cave = { pts: [], lastD: 0 };
   let wx = -SEG;
   for (let i = 0; i < 12; i++) pushCave(wx + i * SEG, H * 0.5, H * 0.56);
   pearls = []; jellies = []; pings = []; parts = []; floats = []; trail = [];
   shake = 0; slow = 0; combo = 0; comboT = 0; comboPop = 0;
-  pearlTimer = 0.6; jellyTimer = 0; score = 0; pearlGot = 0;
+  pearlTimer = 0.6; jellyTimer = 0; score = 0; pearlGot = 0; tutPings = 0;
 }
 
 function pushCave(wx, cy, gap){
@@ -190,7 +193,12 @@ function fallbackCopy(t){
 function ping(){
   pings.push({ r: 10, a: 1 });
   player.vy = FLAP;
+  tutPings++;
   AU.ping();
+}
+function startRun(){
+  resetGame(); state = 'play';
+  pings.push({ r: 10, a: 1 }); AU.ping();   // 开局送一次声呐:先看一眼深渊再摸黑
 }
 function act(e){
   AU.init(); AU.resume();
@@ -200,9 +208,9 @@ function act(e){
     if (state === 'dead' && p.y > H * 0.28 + 230 && p.y < H * 0.28 + 280 &&
         Math.abs(p.x - W / 2) < 90){ copyResult(); return; }                                // 复制战绩
   }
-  if (state === 'menu'){ resetGame(); state = 'play'; }
+  if (state === 'menu'){ startRun(); }
   else if (state === 'play') ping();
-  else if (state === 'dead' && performance.now() - deathAt > 450){ resetGame(); state = 'play'; }
+  else if (state === 'dead' && performance.now() - deathAt > 450){ startRun(); }
 }
 cv.addEventListener('pointerdown', e => { e.preventDefault(); act(e); });
 window.addEventListener('keydown', e => {
@@ -414,7 +422,7 @@ function drawJelly(j){
 }
 
 function draw(){
-  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * offX, dpr * offY);
+  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
   // 背景
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0, '#04101f'); bg.addColorStop(1, '#02060e');
@@ -474,18 +482,28 @@ function draw(){
   if (state === 'play' || state === 'dying'){
     ctx.save();
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = 'rgba(1,4,10,0.91)';
+    // 渐入：开局 2.5s 从 35% 暗度平滑到全黑（给新手反应时间）；死亡瞬间大幅揭开现场
+    const darkA = state === 'dying' ? 0.30 : 0.86 * Math.min(1, 0.35 + tPlay / 2.5);
+    ctx.fillStyle = 'rgba(1,4,10,' + darkA + ')';
     ctx.fillRect(-20, -20, W + 40, H + 40);
     ctx.globalCompositeOperation = 'destination-out';
     const py = player.y;
-    punch(PX, py, 130, 0.95);                                  // 自身微光
+    punch(PX, py, state === 'dying' ? 470 : 165, 0.95);         // 自身微光（死亡时照亮"凶手"）
     for (const p of pings){
       ctx.strokeStyle = 'rgba(255,255,255,' + clamp(p.a, 0, 1) * 0.85 + ')';
       ctx.lineWidth = 110;
       ctx.beginPath(); ctx.arc(PX, py, p.r, 0, TAU); ctx.stroke();
     }
-    for (const p of pearls) punch(sx(p.wx), p.y, 13, 0.8);      // 珍珠微光
+    for (const p of pearls) punch(sx(p.wx), p.y, 22, 0.8);      // 珍珠微光
     ctx.restore();
+    // 声呐环可见亮边：黑暗中也能一眼看到"点按有了反馈"
+    for (const p of pings){
+      const a = clamp(p.a, 0, 1);
+      ctx.strokeStyle = 'rgba(147,233,255,' + (a * 0.25) + ')'; ctx.lineWidth = 8;
+      ctx.beginPath(); ctx.arc(PX, py, p.r, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = 'rgba(200,248,255,' + (a * 0.95) + ')'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(PX, py, p.r, 0, TAU); ctx.stroke();
+    }
   }
   // 浮动加分文本
   ctx.textAlign = 'left';
@@ -524,6 +542,15 @@ function drawHUD(){
       ctx.restore();
       ctx.fillStyle = 'rgba(255,209,102,0.6)';
       ctx.fillRect(W / 2 - 40, 138, 80 * (comboT / 2.5), 3);
+    }
+    // 新手引导:还没形成"点按=上浮+照亮"肌肉记忆前,持续提示
+    if (tutPings < 3 && tPlay < 10){
+      const pulse = 0.65 + Math.sin(Date.now() * 0.004) * 0.3;
+      ctx.fillStyle = 'rgba(234,252,255,' + pulse + ')';
+      ctx.font = 'bold 20px system-ui,sans-serif';
+      ctx.fillText('👆 点按屏幕 = 声呐脉冲', W / 2, H - 96);
+      ctx.fillStyle = 'rgba(180,212,240,0.95)'; ctx.font = '15px system-ui,sans-serif';
+      ctx.fillText('每次点按都会上浮并照亮四周 · 别沉底', W / 2, H - 71);
     }
   }
   // 静音按钮
