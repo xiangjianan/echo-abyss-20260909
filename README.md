@@ -1,54 +1,56 @@
-# 🐋 回声深渊 Echo Abyss
+# 🐋 Echo Abyss
 
-> 漆黑海沟里，你是一只发光小鱼。**点按 = 声呐脉冲 = 上浮 + 照亮四周。**
-> 「看见世界」本身就是奖励——但每一次看，都会改变你的轨迹。
+**English** | [简体中文](README.zh-CN.md)
 
-🔗 **在线试玩**：https://xiangjianan.github.io/echo-abyss-20260909/ （GitHub Pages，手机/电脑浏览器直接开）
+> In a pitch-black ocean trench, you are a tiny glowing fish. **Tap = sonar pulse = swim up + light up your surroundings.**
+> "Seeing the world" is the reward itself — but every look changes your trajectory.
 
-## 🎮 玩法说明
+🔗 **Play online**: https://xiangjianan.github.io/echo-abyss-20260909/ (GitHub Pages, opens directly in mobile/desktop browsers)
 
-- 点按屏幕（或按空格）：发出声呐脉冲——**同时**让你向上弹一下、并向外荡开一片渐变光波，扫过之处照亮周围岩壁
-- 黑暗是常态：不点按就什么都看不见——**连你自己都和深渊融为一体**，只有声呐余晖能短暂照见自己的位置
-- 收集珍珠拉连击：2.5 秒内连续拾取，音高逐级上升、倍率逐级上涨（最高 ×8）
-- 约 3% 概率刷出**绿色珍珠**：吃下后化作小尾巴跟在身后，撞壁或触到水母时替你挡下一次死亡——一颗绿珠只救一次，被救瞬间击退水母、拉回通道中央并短暂无敌闪烁
-- 躲开岩壁与水母（25 秒后开始出现），撞上即死
-- 右上角 🔇 可静音；死亡面板可一键「复制战绩」去炫耀
+## 🎮 How to Play
 
-## 🧠 沉迷机制设计意图（今日调研 → 提炼）
+- Tap the screen (or press space): emits a sonar pulse — **simultaneously** bounces you upward and ripples out a gradient wave of light, illuminating the rock walls it sweeps across
+- Darkness is the norm: without tapping you see nothing — **even you merge into the abyss**, with only the sonar afterglow briefly revealing your position
+- Collect pearls to build combos: chain pickups within 2.5 seconds and the pitch climbs step by step, the multiplier rising with it (up to ×8)
+- About a 3% chance to spawn a **green pearl**: eaten, it becomes a little tail following behind you, blocking one death when you hit a wall or touch a jellyfish — one green pearl saves you once; the moment you're saved it knocks the jellyfish back, pulls you to the center of the channel, and grants brief invincibility flicker
+- Dodge the rock walls and jellyfish (which start appearing after 25 seconds); collision is instant death
+- The 🔇 in the top-right mutes the sound; the death panel has a one-tap "copy stats" button for bragging
 
-今日参考的爆款信号：
+## 🧠 Addiction-Mechanic Design Intent (Today's Research → Distilled)
 
-- [Putt.day — Show HN 每日迷你高尔夫（320 分）](https://putt.day/)：短局 + 每日仪式感钩子
-- [Break 5 — 每日 5 分钟单词游戏](https://break5.co.uk/)：极短单局 × 重开成本趋近于零
-- [Bisecto — 极简切割判定游戏](https://bisecto.com/)：瞬时正误反馈的空间爽感
-- [Bloomberg: Mobile Games Designed to Be Addictive Get More Kid-Friendly](https://www.bloomberg.com/graphics/2026-kid-friendly-mobile-games-addiction/)：沉迷设计向低门槛、轻量化演进
-- 经典锚点：Flappy Bird（单键 × 即死即开）、羊了个羊（保底伪随机 × 指数爬坡）
+Hit signals referenced today:
 
-本作落地的四个心理钩子：
+- [Putt.day — Show HN daily mini golf (320 points)](https://putt.day/): short runs + daily ritual hook
+- [Break 5 — daily 5-minute word game](https://break5.co.uk/): ultra-short runs × near-zero restart cost
+- [Bisecto — minimalist slice-judgment game](https://bisecto.com/): spatial satisfaction of instant right/wrong feedback
+- [Bloomberg: Mobile Games Designed to Be Addictive Get More Kid-Friendly](https://www.bloomberg.com/graphics/2026-kid-friendly-mobile-games-addiction/): addiction design trending toward low barriers and lightweight play
+- Classic anchors: Flappy Bird (single key × instant death/instant restart), Sheep-a-Sheep (pity pseudo-randomness × exponential ramp)
 
-| 钩子 | 实现 |
+The four psychological hooks this game landed on:
+
+| Hook | Implementation |
 | --- | --- |
-| **单输入 · 重开 <1 秒** | 全程只有一个动词「点按」；死亡慢动作 0.4s 后任意点按立即重开 |
-| **信息即奖励（原创核心）** | 声呐照亮与上浮共用同一个按钮：想看清路就必须脉冲，而每次脉冲都改变轨迹——玩家永远同时在做「看」与「动」两个决策 |
-| **组合连击梯** | 2.5s 连击窗 × 五声音阶音高递增 × 倍率成长（×2→×8），漏珠即断，制造「再来一次」的冲动 |
-| **保底伪随机** | 海沟中心游走限制幅度且连续同向大步被压制；珍珠永不出现在岩壁内；水母生成位置保证有躲避空间 |
+| **Single input · restart <1 second** | Only one verb throughout: "tap"; death slow-motion 0.4s, then any tap restarts immediately |
+| **Information as reward (original core)** | Sonar illumination and upward thrust share one button: to see the road you must pulse, and every pulse changes your trajectory — the player is always making both a "look" and a "move" decision at once |
+| **Combo ladder** | 2.5s combo window × pentatonic pitch climb × multiplier growth (×2→×8); a missed pearl breaks it, fueling the "one more try" urge |
+| **Pity pseudo-randomness** | Trench-center wandering limits drift and suppresses consecutive large same-direction steps; pearls never spawn inside walls; jellyfish spawn positions always leave dodge room |
 
-难度曲线：速度 `150 + 12√t` 平滑爬坡；海沟宽度 56% → 30%（约 104 秒到底）；水母 25s 后出现、75s 后双只。前 30 秒宽沟慢速多珍珠，确保新手「赢一次」。
+Difficulty curve: speed ramps smoothly at `150 + 12√t`; trench width 56% → 30% (bottoming out around 104 seconds); jellyfish appear at 25s, double at 75s. The first 30 seconds feature a wide trench, slow speed, and abundant pearls to guarantee beginners "win once."
 
-## 🕹️ 操作方式
+## 🕹️ Controls
 
-| 平台 | 操作 |
+| Platform | Controls |
 | --- | --- |
-| 手机 | 点按屏幕任意位置（右上角静音钮除外） |
-| 电脑 | 鼠标点击 / 空格 / ↑ / 回车 |
+| Mobile | Tap anywhere on screen (except the mute button in the top-right) |
+| Desktop | Mouse click / space / ↑ / enter |
 
-## 🛠️ 技术
+## 🛠️ Tech
 
-- 单文件 `index.html`（~630 行）：HTML5 Canvas + 原生 JS，零构建、零依赖、无需联网
-- WebAudio 实时合成全部音效（声呐回声用延迟反馈总线，无任何音频文件）
-- `?autotest` 参数内置冒烟测试机器人（无头环境可验证状态机/碰撞/拾取/重开）
-- 支持鼠标与触屏，竖屏逻辑分辨率 480×800 自适应缩放
+- Single-file `index.html` (~630 lines): HTML5 Canvas + vanilla JS, zero build, zero dependencies, no internet required
+- All sound effects synthesized in real time with WebAudio (sonar echo via a delay-feedback bus, no audio files at all)
+- `?autotest` parameter includes a built-in smoke-test bot (verifies state machine/collision/pickup/restart in headless environments)
+- Mouse and touch supported; portrait logical resolution 480×800 with adaptive scaling
 
 ---
 
-*每日沉迷小游戏系列 #1 · 2026-09-09 · 由 Hermes Agent 自主调研、设计、开发并发布*
+*Daily addictive mini-game series #1 · 2026-09-09 · Researched, designed, developed, and published autonomously by the Hermes Agent*
